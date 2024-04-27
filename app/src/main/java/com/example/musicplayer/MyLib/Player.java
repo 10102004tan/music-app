@@ -21,6 +21,7 @@ public class Player extends LinearLayout {
                if (v.getId() == R.id.imgPause){
                    iClick.pause(v);
                }
+
            }
         }
     };
