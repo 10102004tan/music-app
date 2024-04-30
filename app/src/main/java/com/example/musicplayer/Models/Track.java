@@ -1,10 +1,21 @@
 package com.example.musicplayer.Models;
 
-public class Track {
+import java.io.Serializable;
 
-    private String urlImage;
+public class Track implements Serializable {
+    private String path;
     private String name;
-    private String preview_url;
+    private String artist;
+
+    // getters and setters
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     public String getName() {
         return name;
@@ -14,26 +25,12 @@ public class Track {
         this.name = name;
     }
 
-    public String getPreview_url() {
-        return preview_url;
+    public String getArtist() {
+        return artist;
     }
 
-    public void setPreview_url(String preview_url) {
-        this.preview_url = preview_url;
-    }
-
-    public String getUrlImage() {
-        return urlImage;
-    }
-
-    public void setUrlImage(String urlImage) {
-        this.urlImage = urlImage;
-    }
-
-    public Track(String urlImage, String name, String preview_url) {
-        this.urlImage = urlImage;
-        this.name = name;
-        this.preview_url = preview_url;
+    public void setArtist(String artist) {
+        this.artist = artist;
     }
 }
 
