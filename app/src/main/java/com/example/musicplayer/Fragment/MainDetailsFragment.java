@@ -1,6 +1,7 @@
 package com.example.musicplayer.Fragment;
 
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -19,15 +20,20 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.musicplayer.Models.Track;
 import com.example.musicplayer.MyLib.Player;
 import com.example.musicplayer.R;
+import com.example.musicplayer.Service.MusicService;
 import com.example.musicplayer.databinding.MainDetailsFragmentBinding;
+
+import java.util.Objects;
 
 public class MainDetailsFragment extends Fragment{
 
     private MediaPlayer mediaPlayer;
     private ObjectAnimator discAnimator;
     private boolean isPlaying = true;
+    private Track track;
 
     private MainDetailsFragmentBinding mainDetailsFragmentBinding;
     private Handler handler = new Handler();
@@ -47,48 +53,48 @@ public class MainDetailsFragment extends Fragment{
 
         mainDetailsFragmentBinding = MainDetailsFragmentBinding.inflate(inflater, container, false);
 
+        track = (Track) getArguments().getSerializable("track");
+
+        mainDetailsFragmentBinding.nameTxt.setText(track.getName());
+
         // Init methods
         Player player = mainDetailsFragmentBinding.player;
         mediaPlayer = new MediaPlayer();
 
-
-
-
-
         /*DISC ANIMATION PROCESSING*/
         discAnimator = ObjectAnimator.ofFloat(mainDetailsFragmentBinding.circleImageView, "rotation", 0f, 360f);
-        Glide.with(this).load(R.drawable.test).into(mainDetailsFragmentBinding.circleImageView);
+        Glide.with(this).load(R.drawable.logo_music_logo).into(mainDetailsFragmentBinding.circleImageView);
         discAnimator.setDuration(20000);
         discAnimator.setInterpolator(new LinearInterpolator());
         discAnimator.setRepeatCount(Animation.INFINITE);
 
-
-
-        try {
-            mediaPlayer.setDataSource(getResources().openRawResourceFd(R.raw.music));
-            mediaPlayer.prepare();
-        }catch (Exception e){
-            Log.e("Error",e.getMessage());
-        }
-
+        Intent intent = new Intent(getActivity(), MusicService.class);
+        intent.putExtra("pathTrack", track.getPath());
         player.setiClick(new Player.IClick() {
             @Override
             public void pause(View v) {
                 ImageView imageView = (ImageView) v;
-                if (isPlaying){
-                    mediaPlayer.start();
-                    discAnimator.start();
-                    handler.postDelayed(runnable, 1000);
-                    isPlaying = false;
-                    imageView.setImageResource(R.drawable.ic_pause);
-                }
-                else{
-                    mediaPlayer.pause();
-                    discAnimator.pause();
-                    handler.removeCallbacks(runnable);
-                    isPlaying = true;
-                    imageView.setImageResource(R.drawable.ic_play);
-                }
+               try {
+                   if (isPlaying){
+                       intent.setAction("ACTION_PLAY");
+                       discAnimator.start();
+                       handler.postDelayed(runnable, 1000);
+                       isPlaying = false;
+                       imageView.setImageResource(R.drawable.ic_pause);
+                   }
+                   else{
+                       intent.setAction("ACTION_PAUSE");
+                       discAnimator.pause();
+                       handler.removeCallbacks(runnable);
+                       isPlaying = true;
+                       imageView.setImageResource(R.drawable.ic_play);
+                   }
+
+                   requireActivity().startService(intent);
+               }
+               catch (Exception e){
+                   Log.d("Error: ", e.getMessage());
+               }
 
             }
         });
@@ -117,10 +123,8 @@ public class MainDetailsFragment extends Fragment{
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (mediaPlayer.isPlaying()){
-                    mediaPlayer.start();
-                    handler.postDelayed(runnable, 1000);
-                }
+                mediaPlayer.start();
+                handler.postDelayed(runnable, 1000);
             }
         });
 

@@ -17,6 +17,12 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
 
     private List<Track> trackList;
 
+    private IClickMusicItem iClickMusicItem;
+
+    public void setiClickMusicItem(IClickMusicItem iClickMusicItem) {
+        this.iClickMusicItem = iClickMusicItem;
+    }
+
     public MusicAdapter(List<Track> trackList) {
         this.trackList = trackList;
     }
@@ -32,7 +38,6 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
     public void onBindViewHolder(@NonNull MusicViewHolder holder, int position) {
         Track track = trackList.get(position);
         holder.binding.trackName.setText(track.getName());
-        holder.binding.trackArti.setText("MTP");
     }
 
     @Override
@@ -46,6 +51,16 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         public MusicViewHolder(@NonNull MusicItemHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            this.binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    iClickMusicItem.onMusicItemClicked(trackList.get(getAdapterPosition()), binding.getRoot());
+                }
+            });
         }
+    }
+
+    public interface IClickMusicItem{
+        void onMusicItemClicked(Track track, View view);
     }
 }
